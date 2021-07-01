@@ -1,12 +1,12 @@
+import io
 from io import StringIO
+from xml.etree.ElementTree import Element, fromstring
 
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
+from bs4 import BeautifulSoup
 from pdfminer.converter import XMLConverter
 from pdfminer.layout import LAParams
-import io
-from bs4 import BeautifulSoup
-from xml.etree.ElementTree import fromstring, Element
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage
 
 
 class Drawing:
@@ -23,10 +23,11 @@ class Drawing:
         la_params.detect_vertical = True
         rotation = 0
         output_xml: StringIO = io.StringIO()
-        device: XMLConverter = XMLConverter(resource_manager, output_xml, laparams=la_params,
-                                            stripcontrol=True)
+        device: XMLConverter = XMLConverter(
+            resource_manager, output_xml, laparams=la_params, stripcontrol=True
+        )
 
-        with open(self.filename, 'rb') as pdf_file:
+        with open(self.filename, "rb") as pdf_file:
             interpreter = PDFPageInterpreter(resource_manager, device)
             for page in PDFPage.get_pages(pdf_file, check_extractable=True):
                 page.rotate = (page.rotate + rotation) % 360
@@ -42,8 +43,8 @@ class Drawing:
     # returns a mixed array with bbox and the text in the line
     def get_text(self):
         xml_file = self.__get_xml_from_pdf()
-        soup: BeautifulSoup = BeautifulSoup(xml_file, features='xml')
-        tags = 'textline'
+        soup: BeautifulSoup = BeautifulSoup(xml_file, features="xml")
+        tags = "textline"
         text_lines = soup.find_all(tags)
         output = []
 
@@ -55,8 +56,8 @@ class Drawing:
             for letter in single_line:
                 characters.append(letter.text)
 
-            full_line = ''.join(map(str, characters))
-            line_bounding_box = group_lines.get('bbox')
+            full_line = "".join(map(str, characters))
+            line_bounding_box = group_lines.get("bbox")
             output.append([full_line, line_bounding_box])
 
         return output
