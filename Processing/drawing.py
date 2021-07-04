@@ -7,6 +7,7 @@ from pdfminer.converter import XMLConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from utility import Utility
 
 
 class Drawing:
@@ -57,6 +58,9 @@ class Drawing:
                 characters.append(letter.text)
 
             full_line = "".join(map(str, characters))
+            if not Utility.is_number(full_line):
+                continue
+
             line_bounding_box = group_lines.get("bbox")
             output.append([full_line, line_bounding_box])
 
